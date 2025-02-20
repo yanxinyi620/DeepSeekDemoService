@@ -1,0 +1,2 @@
+# DeepSeekDemoService
+基于DeepSeek和ollama框架开发的本地大模型Demo Service
