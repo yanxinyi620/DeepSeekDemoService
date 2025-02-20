@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度搜索</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="search-box">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+            <form id="searchForm" onsubmit="return false;">
+                <div class="search-container">
+                    <input type="text" id="searchInput" name="q" autocomplete="off">
+                    <button type="submit" id="searchButton">搜索</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="searchResults" class="results-container"></div>
+    </div>
+
+    <script>
+        // 搜索功能实现
+        const performSearch = async () => {
+            const query = document.getElementById('searchInput').value;
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!query) {
+                resultsContainer.innerHTML = '<p class="empty-tip">请输入搜索内容</p>';
+                return;
+            }
+
+            resultsContainer.innerHTML = '<div class="loading">正在搜索中...</div>';
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `q=${encodeURIComponent(query)}`
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    resultsContainer.innerHTML = `<p class="error">${data.error}</p>`;
+                    return;
+                }
+
+                if (data.results.length === 0) {
+                    resultsContainer.innerHTML = `<p class="empty-tip">没有找到关于 "${query}" 的结果</p>`;
+                    return;
+                }
+
+                const html = data.results.map((result, index) => `
+                    <div class="result-item">
+                        <div class="result-header">
+                            <span class="result-index">${index + 1}.</span>
+                            <a href="${result.url}" class="result-title">${result.title}</a>
+                        </div>
+                        <div class="result-url">${result.url}</div>
+                        <div class="result-description">${result.description}</div>
+                    </div>
+                `).join('');
+
+                resultsContainer.innerHTML = html;
+            } catch (error) {
+                resultsContainer.innerHTML = `<p class="error">搜索失败：${error.message}</p>`;
+            }
+        };
+
+        // 绑定事件
+        document.getElementById('searchButton').addEventListener('click', performSearch);
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+    </script>
+</body>
+</html>
