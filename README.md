@@ -30,9 +30,11 @@ Ollama、DeepSeek和WebUI 的组合为开发者提供了一个强大、灵活、
 ## 部署
 
 [ollama & DeepSeek本地部署（windows）文档](./doc/install_windows.md)
+
 [ollama & DeepSeek私有化部署（linux）文档](./doc/install_linux.md)
 
 ## 环境
 
 [python 环境](./doc/install_env.md)
+
 [数据库环境](./doc/install_env.md)
