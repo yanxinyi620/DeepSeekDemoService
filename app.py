@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import random
 import time
 
-from search_llm.llm_main import get_llm_result
+from llm.llm_main import chat_response
 
 
 app = Flask(__name__)
@@ -32,13 +32,14 @@ def generate_results(query):
     """生成模拟搜索结果"""
     time.sleep(0.5)  # 模拟处理延迟
     
-    llm_result = get_llm_result(query)
+    chat_result = chat_response(query)
+    chat_result = chat_result['content'].replace('<think>\n\n', '').replace('</think>\n\n', '')
 
     # 添加动态内容
     dynamic_results = [{
         "title": f"{query} - deepseek",
         "url": f"https://chat.deepseek.com/search?q={query}",
-        "description": f"{llm_result}"
+        "description": f"{chat_result}"
     }, {
         "title": f"{query} - 知乎专栏",
         "url": f"https://zhihu.com/search?q={query}",
