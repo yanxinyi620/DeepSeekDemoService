@@ -8,29 +8,9 @@ from llm.llm_main import chat_response
 app = Flask(__name__)
 
 
-# 模拟搜索数据库
-sample_results = [
-    {
-        "title": "Python 官方文档",
-        "url": "https://www.python.org",
-        "description": "欢迎来到 Python 官方网站！在这里您可以下载最新版本的 Python..."
-    },
-    {
-        "title": "Flask 框架文档",
-        "url": "https://flask.palletsprojects.com",
-        "description": "Flask 是一个轻量级的 WSGI Web 应用框架。它旨在使..."
-    },
-    {
-        "title": "GitHub 代码托管平台",
-        "url": "https://github.com",
-        "description": "GitHub 是使用 Git 版本控制系统的互联网托管服务..."
-    }
-]
-
-
 def generate_results(query):
     """生成模拟搜索结果"""
-    time.sleep(0.5)  # 模拟处理延迟
+    time.sleep(random.random())  # 模拟处理延迟
     
     chat_result = chat_response(query)
     chat_result = chat_result['content'].replace('<think>\n\n', '').replace('</think>\n\n', '')
@@ -38,19 +18,11 @@ def generate_results(query):
     # 添加动态内容
     dynamic_results = [{
         "title": f"{query} - deepseek",
-        "url": f"https://chat.deepseek.com/search?q={query}",
+        "url": f"https://chat.deepseek.com/",
         "description": f"{chat_result}"
-    }, {
-        "title": f"{query} - 知乎专栏",
-        "url": f"https://zhihu.com/search?q={query}",
-        "description": f"在知乎上关于 {query} 的讨论，超过 1000 条相关回答..."
     }]
-    
-    # 随机排序并添加相关性分数
-    results = sample_results.copy()
-    random.shuffle(results)
 
-    return dynamic_results + results[:3]  # 返回5个结果
+    return dynamic_results  # 返回1个结果
 
 
 @app.route('/')
