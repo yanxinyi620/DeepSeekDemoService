@@ -2,55 +2,36 @@ from flask import Flask, render_template, request, jsonify
 import random
 import time
 
-from llm.llm_main import chat_response
+from llm.llm_main import chat_response, format_response
 
 
 app = Flask(__name__)
 
 
-# 模拟搜索数据库
-sample_results = [
-    {
-        "title": "Python 官方文档",
-        "url": "https://www.python.org",
-        "description": "欢迎来到 Python 官方网站！在这里您可以下载最新版本的 Python..."
-    },
-    {
-        "title": "Flask 框架文档",
-        "url": "https://flask.palletsprojects.com",
-        "description": "Flask 是一个轻量级的 WSGI Web 应用框架。它旨在使..."
-    },
-    {
-        "title": "GitHub 代码托管平台",
-        "url": "https://github.com",
-        "description": "GitHub 是使用 Git 版本控制系统的互联网托管服务..."
-    }
-]
-
-
 def generate_results(query):
     """生成模拟搜索结果"""
-    time.sleep(0.5)  # 模拟处理延迟
+    time.sleep(random.random())  # 模拟处理延迟
     
+    # chat_response 耗时较长
     chat_result = chat_response(query)
-    chat_result = chat_result['content'].replace('<think>\n\n', '').replace('</think>\n\n', '')
+    if chat_result is None:
+        return [{"title": f"无产品推荐", 
+                 "url": "", 
+                 "description": f"未找到关于{query}的任何信息，无法进行产品推荐，请确认后再次搜索。"}]
+
+    # 格式化 chat_response 结果
+    query_result = format_response(chat_result)
 
     # 添加动态内容
-    dynamic_results = [{
-        "title": f"{query} - deepseek",
-        "url": f"https://chat.deepseek.com/search?q={query}",
-        "description": f"{chat_result}"
-    }, {
-        "title": f"{query} - 知乎专栏",
-        "url": f"https://zhihu.com/search?q={query}",
-        "description": f"在知乎上关于 {query} 的讨论，超过 1000 条相关回答..."
-    }]
+    dynamic_results = []
+    for product in query_result['recommended_products']:
+        dynamic_results.append({
+            "title": f"{product['产品名称']}",
+            "url": f"推荐理由: {product['推荐理由']}",
+            "description": f"金融封控点: {product['金融封控注意事项']}",
+        })
     
-    # 随机排序并添加相关性分数
-    results = sample_results.copy()
-    random.shuffle(results)
-
-    return dynamic_results + results[:3]  # 返回5个结果
+    return dynamic_results
 
 
 @app.route('/')
@@ -69,4 +50,5 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # app.run(debug=True, port=5000)
+    app.run(port=5000)
